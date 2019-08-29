@@ -29,7 +29,7 @@ class MatMulSpec extends FlatSpec with Matchers {
 
   it should "Update matrix A" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new MatMul(rowDims, colDims), verbose = false) { c =>
+      chisel3.iotesters.Driver(() => new MatMul(rowDims, colDims), verbose = true) { c =>
         new UpdateMatrix(c)
       } should be(true)
     )
@@ -40,7 +40,7 @@ class MatMulSpec extends FlatSpec with Matchers {
 
   it should "Do shit" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new MatMul(rowDims, colDims), verbose = true) { c =>
+      chisel3.iotesters.Driver(() => new MatMul(rowDims, colDims), verbose = false) { c =>
         new FullMatMul(c)
       } should be(true)
     )
@@ -82,7 +82,7 @@ object MatMulTests {
           expect(a.io.bColIdx, i)
 
           // Check timing of execute signal
-          if((peek(a.debug.state) == 2.U) &&  ii == 6){
+          if((peek(a.debug.state) == 2) &&  ii == 6){
             expect(a.io.executing, 0)
           }
           step(1)
@@ -105,12 +105,15 @@ object MatMulTests {
       val colInputIdx = ii % c.colDimsA
 
       poke(c.io.dataInA, mA(rowInputIdx)(colInputIdx))
-      poke(c.io.dataInB, 0.U)
+      poke(c.io.dataInB, mB(rowInputIdx)(colInputIdx))
       peek(c.debug.aIn)
 
       peek(c.debug.aRowIdx)
       peek(c.debug.aColIdx)
+      peek(c.debug.bRowIdx)
+      peek(c.debug.bColIdx)
       peek(c.debug.aWE)
+      peek(c.debug.bWE)
 
       peek(c.debug.a)
       peek(c.debug.b)
@@ -124,7 +127,19 @@ object MatMulTests {
       val rowInputIdx = ii / c.colDimsA
       val colInputIdx = ii % c.colDimsA
 
+      peek(c.debug.aRowIdx)
+      peek(c.debug.aColIdx)
+      peek(c.debug.bRowIdx)
+      peek(c.debug.bColIdx)
+      peek(c.debug.aWE)
+      peek(c.debug.bWE)
+
+      peek(c.debug.a)
+      peek(c.debug.b)
+
+
       expect(c.debug.a, mA(rowInputIdx)(colInputIdx))
+      expect(c.debug.b, mB(rowInputIdx)(colInputIdx))
       step(1)
     }
   }
