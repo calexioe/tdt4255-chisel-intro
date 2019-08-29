@@ -17,7 +17,7 @@ class VectorSpec extends FlatSpec with Matchers {
 
   it should "Not update its contents when write enable is false" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new Vector(elements)) { c =>
+      chisel3.iotesters.Driver(() => new Vector(elements), verbose = true) { c =>
         new WriteEnable(c)
       } should be(true)
     )
@@ -25,7 +25,7 @@ class VectorSpec extends FlatSpec with Matchers {
 
   it should "Update its registers when write enable is true" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new Vector(elements)) { c =>
+      chisel3.iotesters.Driver(() => new Vector(elements), verbose = true) { c =>
         new UpdatesData(c)
       } should be(true)
     )
@@ -33,7 +33,7 @@ class VectorSpec extends FlatSpec with Matchers {
 
   it should "Retain its data once write enable is set to false" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new Vector(elements)) { c =>
+      chisel3.iotesters.Driver(() => new Vector(elements), verbose = true) { c =>
         new RetainsData(c)
       } should be(true)
     )

@@ -10,7 +10,7 @@ import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
 import TestUtils._
 
-// Does not compile
+// Does not compile 
 // class MyVector() extends Module {
 //   val io = IO(
 //     new Bundle {
@@ -18,8 +18,10 @@ import TestUtils._
 //       val out = Output(UInt(32.W))
 //     }
 //   )
+//   //scala code, not valid for HDL
+//   //val values = List(1, 2, 3, 4)
 
-//   val values = List(1, 2, 3, 4)
+//   var values = Vec(0.U, 1.U, 2.U, 3.U)
 
 //   io.out := values(io.idx)
 // }

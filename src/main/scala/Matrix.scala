@@ -1,11 +1,12 @@
 package Ex0
 
 import chisel3._
+import chisel3.experimental.MultiIOModule
 
 // This import statement makes the scala vector invisible, reducing confusion
 import scala.collection.immutable.{ Vector => _ }
 
-class Matrix(val rowsDim: Int, val colsDim: Int) extends Module {
+class Matrix(val rowsDim: Int, val colsDim: Int) extends MultiIOModule {
 
   val io = IO(
     new Bundle {
@@ -17,19 +18,34 @@ class Matrix(val rowsDim: Int, val colsDim: Int) extends Module {
       val dataOut     = Output(UInt(32.W))
     }
   )
+  val debug = IO(
+    new Bundle {
+      val dataIn = Output(UInt(32.W))
+    }
+  )
 
-  /**
-    * Your code here
-    */
+  // Creates a vector of the module vector
+  val rows = VecInit(Seq.fill(rowsDim)(Module(new Vector(colsDim)).io))
 
-  // Creates a vector of zero-initialized registers
-  val rows = Vec.fill(rowsDim)(Module(new Vector(colsDim)).io)
-
-  // placeholders
-  io.dataOut := 0.U
+  //Connect wires to vector modules
   for(ii <- 0 until rowsDim){
-    rows(ii).dataIn      := 0.U
-    rows(ii).writeEnable := false.B
-    rows(ii).idx         := 0.U
+    // Connect input data
+    rows(ii).dataIn      := io.dataIn
+
+    // Create a seperate mux for each row(ii).writeEnable
+    // If the rowIdx equals the iterator than let writeEnable through, else set it to false.
+    when (ii.U === io.rowIdx) {
+      rows(ii).writeEnable := io.writeEnable
+    }.otherwise{
+      rows(ii).writeEnable := false.B
+    }
+
+    // Connect column index
+    rows(ii).idx         := io.colIdx
   }
+
+  // Set output
+  io.dataOut := rows(io.rowIdx).dataOut
+
+  debug.dataIn := rows(io.rowIdx).dataIn
 }

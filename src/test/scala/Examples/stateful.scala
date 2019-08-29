@@ -10,6 +10,8 @@ import chisel3.iotesters.PeekPokeTester
 import org.scalatest.{Matchers, FlatSpec}
 import TestUtils._
 
+import java.io.File
+
 class SimpleDelay() extends Module {
   val io = IO(
     new Bundle {
@@ -28,7 +30,7 @@ class DelaySpec extends FlatSpec with Matchers {
   behavior of "SimpleDelay"
 
   it should "Delay input by one timestep" in {
-    chisel3.iotesters.Driver(() => new SimpleDelay) { c =>
+    chisel3.iotesters.Driver(() => new SimpleDelay, verbose = true) { c =>
       new DelayTester(c)
     } should be(true)
   }
@@ -42,4 +44,9 @@ class DelayTester(c: SimpleDelay) extends PeekPokeTester(c)  {
     step(1)
     expect(c.io.dataOut, input)
   }
+}
+
+object Main extends App {
+  val f = new File("SimpleDelay.fir")
+  chisel3.Driver.dumpFirrtl(chisel3.Driver.elaborate(() => new SimpleDelay), Option(f))
 }

@@ -26,7 +26,7 @@ class MyIncrementTest extends FlatSpec with Matchers {
     io.dataOut := io.dataIn + incrementBy.U
   }
 
-  class TheTestRunner(c: MyIncrement) extends PeekPokeTester(c)  {
+  class MyIncrementTest(c: MyIncrement) extends PeekPokeTester(c)  {
     for(ii <- 0 until 5){
       poke(c.io.dataIn, ii)
       val o = peek(c.io.dataOut)
@@ -38,8 +38,10 @@ class MyIncrementTest extends FlatSpec with Matchers {
   behavior of "my increment"
 
   it should "increment its input by 3" in {
+    //-----------------------------The component we want to test---
     chisel3.iotesters.Driver(() => new MyIncrement(3)) { c =>
-      new TheTestRunner(c)
+    //---The test-----------
+      new MyIncrementTest(c) //we pass a configured "component" to the test
     } should be(true)
   }
 }

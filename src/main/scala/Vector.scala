@@ -20,16 +20,11 @@ class Vector(val elements: Int) extends Module {
 
 
   when(io.writeEnable){
-    // TODO:
-    // When writeEnable is true the content of internalVector at the index specified
-    // by idx should be set to the value of io.dataIn
+    //Update InternalVector when writeenable is set high
+    internalVector(io.idx) := io.dataIn
   }
-  // In this case we don't want an otherwise block, in writeEnable is low we don't change
-  // anything
+  //else - do nothing
 
-
-  // TODO:
-  // io.dataOut should be driven by the contents of internalVector at the index specified
-  // by idx
-  io.dataOut := 0.U
+  // dataout is always internalvector(io.idx)
+  io.dataOut := internalVector(io.idx)
 }

@@ -13,9 +13,19 @@ class DotProdSpec extends FlatSpec with Matchers {
 
   behavior of "DotProd"
 
+  it should "Test counter value" in {
+    wrapTester(
+      chisel3.iotesters.Driver(() => new DotProd(elements), verbose = true) { c =>
+        new PrintCounter(c)
+      } should be(true)
+    )
+  }
+
+
+
   it should "Only signal valid output at end of calculation" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new DotProd(elements)) { c =>
+      chisel3.iotesters.Driver(() => new DotProd(elements), verbose = true) { c =>
         new SignalsWhenDone(c)
       } should be(true)
     )
@@ -24,7 +34,7 @@ class DotProdSpec extends FlatSpec with Matchers {
 
   it should "Calculate the correct output" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new DotProd(elements)) { c =>
+      chisel3.iotesters.Driver(() => new DotProd(elements), verbose = true) { c =>
         new CalculatesCorrectResult(c)
       } should be(true)
     )
@@ -33,7 +43,7 @@ class DotProdSpec extends FlatSpec with Matchers {
 
   it should "Calculate the correct output and signal when appropriate" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new DotProd(elements)) { c =>
+      chisel3.iotesters.Driver(() => new DotProd(elements), verbose = true) { c =>
         new CalculatesCorrectResultAndSignals(c)
       } should be(true)
     )
@@ -41,6 +51,15 @@ class DotProdSpec extends FlatSpec with Matchers {
 }
 
 object DotProdTests {
+
+
+  class PrintCounter (c:DotProd) extends PeekPokeTester(c) {
+    for (ii <- 0 until 15){
+      peek(c.io.outputValid)
+      step(1)
+    }
+  }
+
 
   val rand = new scala.util.Random(100)
 
@@ -74,6 +93,7 @@ object DotProdTests {
     for(ii <- 0 until c.elements){
       poke(c.io.dataInA, inputsA(ii))
       poke(c.io.dataInB, inputsB(ii))
+      peek(c.io.dataOut)
       if(ii == c.elements - 1)
         expect(c.io.dataOut, expectedOutput)
       step(1)
@@ -93,6 +113,7 @@ object DotProdTests {
     for(ii <- 0 until c.elements){
       poke(c.io.dataInA, inputsA(ii))
       poke(c.io.dataInB, inputsB(ii))
+      peek(c.io.dataOut)
       if(ii == c.elements - 1){
         expect(c.io.dataOut, expectedOutput)
         expect(c.io.outputValid, true)
@@ -106,6 +127,7 @@ object DotProdTests {
     for(ii <- 0 until c.elements){
       poke(c.io.dataInA, inputsA(ii))
       poke(c.io.dataInB, inputsB(ii))
+      peek(c.io.dataOut)
       if(ii == c.elements - 1){
         expect(c.io.dataOut, expectedOutput)
         expect(c.io.outputValid, true)

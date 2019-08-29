@@ -14,7 +14,7 @@ class MatrixSpec extends FlatSpec with Matchers {
 
   val rand = new scala.util.Random(100)
   val rowDims = 5
-  val colDims = 3
+  val colDims = 5
 
   it should "Update its contents with a square shape" in {
     wrapTester(
@@ -36,8 +36,8 @@ class MatrixSpec extends FlatSpec with Matchers {
 
   it should "Retain its contents when writeEnable is low" in {
     wrapTester(
-      chisel3.iotesters.Driver(() => new Matrix(rowDims, colDims)) { c =>
-        new UpdatesData(c)
+      chisel3.iotesters.Driver(() => new Matrix(rowDims, colDims), verbose = true) { c =>
+        new RetainsData(c)
       } should be(true)
     )
   }

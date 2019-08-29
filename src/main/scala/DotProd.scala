@@ -2,8 +2,9 @@ package Ex0
 
 import chisel3._
 import chisel3.util.Counter
+import chisel3.experimental.MultiIOModule
 
-class DotProd(val elements: Int) extends Module {
+class DotProd(val elements: Int) extends MultiIOModule {
 
   val io = IO(
     new Bundle {
@@ -19,13 +20,35 @@ class DotProd(val elements: Int) extends Module {
   /**
     * Your code here
     */
-  val counter = Counter(elements)
+
+  val enableCounter = true.B
+
+  val (counter, counterWrap) = Counter(enableCounter, elements)
   val accumulator = RegInit(UInt(32.W), 0.U)
+  val resetAccumulator = WireInit(Bool(), true.B)
+
 
   // Please don't manually implement product!
   val product = io.dataInA * io.dataInB
 
-  // placeholder
-  io.dataOut := 0.U
-  io.outputValid := false.B
+  //set output valid when counter have counted elements times
+  when (counterWrap) {
+    io.outputValid := true.B
+    resetAccumulator := true.B
+  }.otherwise{
+    io.outputValid := false.B
+    resetAccumulator := false.B
+  }
+
+  //reset accumulator when finished calculating dot product
+  when (resetAccumulator) {
+    accumulator := 0.U
+  }.otherwise{
+    //update accumulator
+    accumulator := accumulator + product
+  }
+
+
+  // assign output
+  io.dataOut := accumulator + product
 }
