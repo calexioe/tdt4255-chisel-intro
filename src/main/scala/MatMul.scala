@@ -70,7 +70,7 @@ class MatMul(val rowDimsA: Int, val colDimsA: Int) extends MultiIOModule {
   //Debug
   debug.aIn                  := matrixA.debug.dataIn
 
-  val matrixB     = Module(new Matrix(rowDimsA, colDimsA)).io
+  val matrixB     = Module(new Matrix(colDimsA, rowDimsA)).io
   // Inputs
   matrixB.dataIn          := io.dataInB
   matrixB.rowIdx          := fsm.bRowIdx
